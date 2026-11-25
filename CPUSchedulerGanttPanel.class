@@ -1,0 +1,94 @@
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
+
+class GanttPanel extends JPanel {
+
+    private List<Block> blocks;
+
+    public GanttPanel() {
+        blocks = new ArrayList<>();
+
+        setPreferredSize(new Dimension(380, 70));
+        setMaximumSize(new Dimension(400, 70));
+        setBackground(Color.WHITE);
+    }
+
+    public void setBlocks(List<Block> blocks) {
+        this.blocks = blocks;
+        repaint();
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
+        if (blocks.isEmpty()) {
+            return;
+        }
+
+        Graphics2D g2 = (Graphics2D) g;
+
+        g2.setRenderingHint(
+            RenderingHints.KEY_ANTIALIASING,
+            RenderingHints.VALUE_ANTIALIAS_ON
+        );
+
+        int maxTime = blocks.get(blocks.size() - 1).end;
+
+        if (maxTime == 0) {
+            maxTime = 1;
+        }
+
+        int availableWidth = getWidth() - 35;
+        int leftMargin = 35;
+        int blockHeight = 15;
+        int y = 8;
+
+        g2.setFont(new Font("SansSerif", Font.BOLD, 11));
+
+        g2.drawString("0", leftMargin - 3,
+                      y + blockHeight + 18);
+
+        for (Block block : blocks) {
+
+            int x1 = leftMargin +
+                (int)((double) block.start / maxTime
+                * availableWidth);
+
+            int x2 = leftMargin +
+                (int)((double) block.end / maxTime
+                * availableWidth);
+
+            int width = Math.max(26, x2 - x1);
+
+            g2.setColor(block.color);
+            g2.fillRect(x1, y, width, blockHeight);
+
+            g2.setColor(Color.DARK_GRAY);
+            g2.drawRect(x1, y, width, blockHeight);
+
+            FontMetrics fm = g2.getFontMetrics();
+
+            String pid = block.pid;
+
+            int textX = x1 + (width -
+                fm.stringWidth(pid)) / 2;
+
+            int textY = y + (blockHeight +
+                fm.getAscent()) / 2 - 2;
+
+            g2.drawString(pid, textX, textY);
+
+            String endTime = String.valueOf(block.end);
+
+            g2.drawString(
+                endTime,
+                x2 - fm.stringWidth(endTime) / 2,
+                y + blockHeight + 18
+            );
+        }
+    }
+}
