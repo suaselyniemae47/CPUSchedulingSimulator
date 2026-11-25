@@ -1,0 +1,26 @@
+
+class Process {
+
+    String pid;
+
+    int at;          // Arrival Time
+    int bt;          // Burst Time
+    int priority;
+
+    int ct;          // Completion Time
+    int tat;         // Turnaround Time
+    int wt;          // Waiting Time
+    int rt;          // Response Time
+
+    int remainingBt;
+
+    Process(String pid, int at, int bt, int priority) {
+
+        this.pid = pid;
+        this.at = at;
+        this.bt = bt;
+        this.priority = priority;
+
+        this.remainingBt = bt;
+    }
+}
