@@ -1,0 +1,131 @@
+
+static class CPUSchedulerSimulator {
+
+    static void runFCFS(List<Process> processes) {
+
+        processes.sort((p1, p2) ->
+            Integer.compare(p1.at, p2.at)
+        );
+
+        int currentTime = 0;
+
+        for (Process p : processes) {
+
+            if (currentTime < p.at) {
+                currentTime = p.at;
+            }
+
+            p.ct = currentTime + p.bt;
+            p.tat = p.ct - p.at;
+            p.wt = p.tat - p.bt;
+            p.rt = Math.max(0, currentTime - p.at);
+
+            currentTime = p.ct;
+        }
+    }
+
+    static void runSJFNonPreemptive(List<Process> processes) {
+
+        List<Process> remaining = new ArrayList<>(processes);
+
+        remaining.sort((p1, p2) ->
+            Integer.compare(p1.at, p2.at)
+        );
+
+        int currentTime = 0;
+
+        while (!remaining.isEmpty()) {
+
+            Process selected = null;
+
+            for (Process p : remaining) {
+
+                if (p.at <= currentTime) {
+
+                    if (selected == null ||
+                        p.bt < selected.bt ||
+                        (p.bt == selected.bt && p.at < selected.at)) {
+
+                        selected = p;
+                    }
+                }
+            }
+
+            if (selected == null) {
+                currentTime = remaining.get(0).at;
+                continue;
+            }
+
+            remaining.remove(selected);
+
+            if (currentTime < selected.at) {
+                currentTime = selected.at;
+            }
+
+            selected.ct = currentTime + selected.bt;
+            selected.tat = selected.ct - selected.at;
+            selected.wt = selected.tat - selected.bt;
+            selected.rt = Math.max(0, currentTime - selected.at);
+
+            currentTime = selected.ct;
+        }
+    }
+
+    static void runRoundRobin(List<Process> processes, int quantum) {
+
+        List<Process> readyQueue = new ArrayList<>();
+        List<Process> remaining = new ArrayList<>(processes);
+
+        remaining.sort((p1, p2) ->
+            Integer.compare(p1.at, p2.at)
+        );
+
+        int currentTime = 0;
+        int index = 0;
+
+        while (!remaining.isEmpty() || !readyQueue.isEmpty()) {
+
+            while (index < remaining.size() &&
+                   remaining.get(index).at <= currentTime) {
+
+                readyQueue.add(remaining.get(index));
+                index++;
+            }
+
+            if (readyQueue.isEmpty()) {
+                currentTime = remaining.get(index).at;
+                continue;
+            }
+
+            Process p = readyQueue.remove(0);
+
+            if (p.rt == 0 && p.at <= currentTime) {
+                p.rt = currentTime - p.at;
+            }
+
+            int executionTime = Math.min(
+                quantum, p.remainingBt
+            );
+
+            p.remainingBt -= executionTime;
+            currentTime += executionTime;
+
+            while (index < remaining.size() &&
+                   remaining.get(index).at <= currentTime) {
+
+                readyQueue.add(remaining.get(index));
+                index++;
+            }
+
+            if (p.remainingBt > 0) {
+                readyQueue.add(p);
+            } else {
+
+                p.ct = currentTime;
+                p.tat = p.ct - p.at;
+                p.wt = p.tat - p.bt;
+                p.rt = Math.max(0, p.rt);
+            }
+        }
+    }
+}
