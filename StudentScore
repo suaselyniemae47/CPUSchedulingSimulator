@@ -1,0 +1,43 @@
+import java.util.Scanner;
+
+public class StudentScoreAnalyzer {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Enter the number of students: ");
+        int n = scanner.nextInt();
+
+        if (n <= 0) {
+            System.out.println("Invalid number of students.");
+            return;
+        }
+
+        double[] scores = new double[n];
+        double sum = 0;
+        double max = Double.MIN_VALUE;
+        double min = Double.MAX_VALUE;
+
+        System.out.println("Enter the scores for each student:");
+        for (int i = 0; i < n; i++) {
+            System.out.print("Score for student " + (i + 1) + ": ");
+            scores[i] = scanner.nextDouble();
+            sum += scores[i];
+            if (scores[i] > max) {
+                max = scores[i];
+            }
+            if (scores[i] < min) {
+                min = scores[i];
+            }
+        }
+
+        double average = sum / n;
+
+        System.out.println("\n--- Student Score Analysis ---");
+        System.out.println("Total Students: " + n);
+        System.out.println("Average Score: " + average);
+        System.out.println("Highest Score: " + max);
+        System.out.println("Lowest Score: " + min);
+
+        scanner.close();
+    }
+}a
